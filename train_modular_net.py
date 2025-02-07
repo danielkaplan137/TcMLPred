@@ -29,55 +29,62 @@ def is_nan(x):
 
 # @title Default title text
 # model constuction
+## model constuction
 def create_model():
 
-    class Net(nn.Module):
-        def __init__(self):
-            super(Net, self).__init__()
+   class Net(nn.Module):
+       def __init__(self):
+           super(Net, self).__init__()
 
 #BackBone
-            self.seq1 = nn.Sequential(
-                nn.Flatten(),
-                nn.Linear(120, 64),
-                nn.ReLU()
-                )
+           self.seq1 = nn.Sequential(
+               nn.Conv2d(1, 32, 7, stride=1, padding=(3,3)),
+               nn.ReLU(),
+               nn.Conv2d(32, 32, 5, stride=1, padding=(2,2)),
+               nn.ReLU()
+               )
 
 #Classification branch
-            self.seq2 = nn.Sequential(
-                nn.Linear(64, 128),
-                nn.ReLU(),
-                nn.Linear(128, 512),
-                nn.ReLU(),
-                nn.Dropout(0.25),
-                nn.Linear(512, 128),
-                nn.ReLU(),
-                nn.Dropout(0.5),
-                nn.Linear(128, 2),
-                nn.Softmax(dim=1)
-            )
+           self.seq2 = nn.Sequential(
+               nn.Conv2d(32, 64, 3, stride=2),
+               nn.ReLU(),
+               nn.MaxPool2d(3, stride=2),
+               nn.Dropout(0.25),
+               nn.Flatten(),
+               nn.Linear(128, 512),
+               nn.ReLU(),
+               nn.Dropout(0.5),
+               nn.Linear(512, 2),
+               nn.Softmax(dim=1)
+           )
 
 #Prediction Branch
-            self.seq3 = nn.Sequential(
-                nn.Linear(64, 128),
-                nn.ReLU(),
-                nn.Linear(128, 512),
-                nn.ReLU(),
-                nn.Dropout(0.25),
-                nn.Linear(512, 128),
-                nn.ReLU(),
-                nn.Dropout(0.5),
-                nn.ReLU(),
-                nn.Linear(128, 1)
-            )
+           self.seq3 = nn.Sequential(
+               nn.Conv2d(32, 64, 3, stride=2),
+               nn.ReLU(),
+               nn.Conv2d(64, 64, 3, stride=2),
+               nn.ReLU(),
+               nn.Conv2d(64, 128, 1, stride=1),
+               nn.ReLU(),
+               nn.Conv2d(128, 64, 1, stride=1),
+               nn.ReLU(),
+               nn.Dropout(0.25),
+               nn.Flatten(),
+               nn.Linear(128, 512),
+               nn.ReLU(),
+               nn.Dropout(0.5),
+               nn.Linear(512, 1)
+           )
 
-        def forward(self, x):
-            x = self.seq1(x)
-            output1 = self.seq2(x)
-            output2 = self.seq3(x)
-            return [output2, output1]
-    model = Net()
-    print(model)
-    return model
+       def forward(self, x):
+           x = self.seq1(x)
+           output1 = self.seq2(x)
+           output2 = self.seq3(x)
+           return [output2, output1]
+   model = Net()
+   print(model)
+   return model
+#
 
 
 
